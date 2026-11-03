@@ -25,7 +25,9 @@ final class MagicBytesDetector implements MagicBytesDetectorInterface
      */
     private const array SIGNATURES = [
         'image/jpeg' => [[\chr(0xFF) . \chr(0xD8) . \chr(0xFF), 0]],
-        'image/png' => [["\x89PNG\r\n\x1A\n", 0]],
+        'image/png' => [["\x89PNG\r
+\x1A
+", 0]],
         'image/gif' => [['GIF87a', 0], ['GIF89a', 0]],
         'image/webp' => [['RIFF', 0], ['WEBP', 8]],
         'image/avif' => [['ftypavif', 4], ['ftypmif1', 4]],

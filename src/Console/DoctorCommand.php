@@ -28,18 +28,29 @@ final class DoctorCommand
         $compat = \Tavaan\Engine\Compat\CompatServiceProvider::instance();
         $report = $compat->report();
 
-        echo "PHP Version: " . $compat->version() . "\n";
-        echo "Drivers:\n";
-        echo "  image:   " . $compat->driver('image') . "\n";
-        echo "  zip:     " . $compat->driver('zip') . "\n";
-        echo "  http:    " . $compat->driver('http') . "\n";
-        echo "  math:    " . $compat->driver('math') . "\n";
-        echo "  unicode: " . $compat->driver('unicode') . "\n";
-        echo "  mime:    " . $compat->driver('mime') . "\n";
-        echo "\nExtensions (" . \count($report) . "):\n";
+        echo "PHP Version: " . $compat->version() . "
+";
+        echo "Drivers:
+";
+        echo "  image:   " . $compat->driver('image') . "
+";
+        echo "  zip:     " . $compat->driver('zip') . "
+";
+        echo "  http:    " . $compat->driver('http') . "
+";
+        echo "  math:    " . $compat->driver('math') . "
+";
+        echo "  unicode: " . $compat->driver('unicode') . "
+";
+        echo "  mime:    " . $compat->driver('mime') . "
+";
+        echo "
+Extensions (" . \count($report) . "):
+";
         foreach ($report as $ext => $info) {
             $status = $info['loaded'] ? '✅' : '❌';
-            echo \sprintf("  %s %-15s fallback: %s\n", $status, $ext, $info['fallback']);
+            echo \sprintf("  %s %-15s fallback: %s
+", $status, $ext, $info['fallback']);
         }
         return 0;
     }
