@@ -24,7 +24,7 @@ final class MagicBytesDetector implements MagicBytesDetectorInterface
      * @var array<string, list<array{0: ?string, 1: int, 2?: string}>>
      */
     private const array SIGNATURES = [
-        'image/jpeg' => [[\chr(0xFF) . \chr(0xD8) . \chr(0xFF), 0]],
+        'image/jpeg' => [["\xFF\xD8\xFF", 0]],
         'image/png' => [["\x89PNG\r
 \x1A
 ", 0]],
