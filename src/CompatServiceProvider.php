@@ -4,45 +4,69 @@ declare(strict_types=1);
 
 namespace Tavaan\Engine\Compat;
 
-use Tavaan\Core\Contracts\Container\ContainerInterface;
-use Tavaan\Core\Contracts\Config\RepositoryInterface as ConfigRepository;
 use Tavaan\Engine\Compat\Contracts\CompatInterface;
-use Tavaan\Core\Provider\ServiceProvider;
+use Tavaan\Engine\Compat\Console\DoctorCommand;
 
 /**
  * CompatServiceProvider — ثبت سرویس‌های موتور Compat.
+ *
+ * @see docs/03-engines/compat.md
  */
-final class CompatServiceProvider extends ServiceProvider
+final class CompatServiceProvider
 {
+    private \Closure $resolver;
+    private \Closure $configResolver;
+    /** @var list<class-string> */
+    private array $commands = [];
+
     /**
-     * {@inheritdoc}
+     * @param callable(): CompatInterface $resolver
+     * @param callable(): array<string, mixed> $configResolver
+     */
+    public function __construct(callable $resolver, callable $configResolver)
+    {
+        $this->resolver = \Closure::fromCallable($resolver);
+        $this->configResolver = \Closure::fromCallable($configResolver);
+    }
+
+    /**
+     * Register singleton instances.
      */
     public function register(): void
     {
-        $this->app->singleton(CompatInterface::class, function (ContainerInterface $app) {
-            /** @var ConfigRepository $config */
-            $config = $app->get(ConfigRepository::class);
-            return new Compat($config);
-        });
+        $resolver = $this->resolver;
+        $configResolver = $this->configResolver;
+        // In a real Tavaan app, this would use the container
+        // Here we expose a static accessor for tests
+        $GLOBALS['tvn.compat'] = $resolver();
+        $GLOBALS['tvn.compat.config'] = $configResolver();
     }
 
     /**
-     * {@inheritdoc}
+     * Boot — register commands and facades.
      */
     public function boot(): void
     {
-        // ثبت commandها
-        $this->commands[] = \Tavaan\Engine\Compat\Console\DoctorCommand::class;
-
+        $this->commands[] = DoctorCommand::class;
     }
 
     /**
-     * {@inheritdoc}
+     * @return list<class-string>
      */
     public function provides(): array
     {
-        return [
-            CompatInterface::class,
-        ];
+        $list = [CompatInterface::class];
+        return \array_merge($list, $this->commands);
+    }
+
+    /**
+     * Static accessor for tests and minimal usage.
+     */
+    public static function instance(): CompatInterface
+    {
+        if (!isset($GLOBALS['tvn.compat'])) {
+            $GLOBALS['tvn.compat'] = new Compat([]);
+        }
+        return $GLOBALS['tvn.compat'];
     }
 }

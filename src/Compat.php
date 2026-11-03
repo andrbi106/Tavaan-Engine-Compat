@@ -4,73 +4,180 @@ declare(strict_types=1);
 
 namespace Tavaan\Engine\Compat;
 
+use Tavaan\Engine\Compat\Contracts\CompatInterface;
 
 /**
- * Compat — پیاده‌سازی اصلی موتور.
+ * موتور Compat — سازگاری و Polyfill.
  *
- * @see \Tavaan\Engine\Compat\Contracts\CompatInterface
+ * فراهم‌کردن پیاده‌سازی خالص PHP برای افزونه‌ها و توابعی که ممکن است موجود نباشند،
+ * تا اصل «خودکفایی» حفظ شود و موتورهای دیگر بدون `if (extension_loaded)` پراکنده بنویسند.
+ *
+ * 🔒 قاعده: کد موتور باید `Compat::xxx()` را صدا بزند؛ تشخیص و Fallback در این موتور متمرکز است.
+ *
+ * @see docs/03-engines/compat.md (DOC-083E)
  */
-final class Compat implements Contracts\CompatInterface
+final class Compat implements CompatInterface
 {
     /**
-     * @param Config $config پیکربندی موتور
+     * پیکربندی موتور.
+     *
+     * @param array<string, mixed> $config
      */
     public function __construct(
-        private readonly Config $config,
+        private readonly array $config = [],
     ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function has(/* ... */): mixed
+    public function has(string $extension): bool
     {
-        // TODO: پیاده‌سازی has مطابق مستندات (سند §3 API).
-        return null;
+        return \extension_loaded($extension);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasAny(/* ... */): mixed
+    public function hasAny(array $extensions): bool
     {
-        // TODO: پیاده‌سازی hasAny مطابق مستندات (سند §3 API).
-        return null;
+        foreach ($extensions as $ext) {
+            if ($this->has($ext)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function require(/* ... */): mixed
+    public function require(string $extension, string $capability): void
     {
-        // TODO: پیاده‌سازی require مطابق مستندات (سند §3 API).
-        return null;
+        if (!$this->has($extension)) {
+            throw EngineCapabilityException::forExtension($extension, $capability);
+        }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function report(/* ... */): mixed
+    public function report(): array
     {
-        // TODO: پیاده‌سازی report مطابق مستندات (سند §3 API).
-        return null;
+        $extensions = [
+            'mbstring', 'bcmath', 'openssl', 'sodium', 'zip', 'zlib', 'curl',
+            'gd', 'imagick', 'intl', 'fileinfo', 'exif', 'apcu', 'dom',
+            'xmlwriter', 'pcntl', 'posix', 'opcache', 'sockets', 'redis',
+            'memcached', 'pdo', 'pdo_mysql', 'pdo_pgsql', 'pdo_sqlite',
+        ];
+        $report = [];
+        foreach ($extensions as $ext) {
+            $report[$ext] = [
+                'required' => false,
+                'loaded' => $this->has($ext),
+                'fallback' => $this->fallbackFor($ext),
+            ];
+        }
+        return $report;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function driver(/* ... */): mixed
+    public function driver(string $capability): string
     {
-        // TODO: پیاده‌سازی driver مطابق مستندات (سند §3 API).
-        return null;
+        $drivers = $this->config['drivers'] ?? [];
+        $setting = $drivers[$capability] ?? 'auto';
+
+        return match ($capability) {
+            'image' => $this->resolveImageDriver($setting),
+            'zip' => $this->resolveZipDriver($setting),
+            'http' => $this->resolveHttpDriver($setting),
+            'math' => $this->resolveMathDriver($setting),
+            'unicode' => $this->resolveUnicodeDriver($setting),
+            'mime' => $this->resolveMimeDriver($setting),
+            default => 'none',
+        };
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function version(/* ... */): mixed
+    public function version(): string
     {
-        // TODO: پیاده‌سازی version مطابق مستندات (سند §3 API).
-        return null;
+        return PHP_VERSION;
+    }
+
+    private function resolveImageDriver(string $setting): string
+    {
+        if ($setting !== 'auto') {
+            return $this->has($setting) ? $setting : 'none';
+        }
+        if ($this->has('imagick')) {
+            return 'imagick';
+        }
+        if ($this->has('gd')) {
+            return 'gd';
+        }
+        return 'none';
+    }
+
+    private function resolveZipDriver(string $setting): string
+    {
+        if ($setting !== 'auto') {
+            return $this->has($setting) ? $setting : 'none';
+        }
+        return $this->has('zip') ? 'zip' : 'pure';
+    }
+
+    private function resolveHttpDriver(string $setting): string
+    {
+        if ($setting !== 'auto') {
+            return $this->has($setting) ? $setting : 'stream';
+        }
+        return $this->has('curl') ? 'curl' : 'stream';
+    }
+
+    private function resolveMathDriver(string $setting): string
+    {
+        if ($setting !== 'auto') {
+            return $this->has($setting) ? $setting : 'decimal';
+        }
+        if ($this->has('bcmath')) {
+            return 'bcmath';
+        }
+        if ($this->has('gmp')) {
+            return 'gmp';
+        }
+        return 'decimal';
+    }
+
+    private function resolveUnicodeDriver(string $setting): string
+    {
+        if ($setting !== 'auto') {
+            return $this->has($setting) ? $setting : 'native';
+        }
+        if ($this->has('intl')) {
+            return 'intl';
+        }
+        if ($this->has('mbstring')) {
+            return 'mbstring';
+        }
+        return 'native';
+    }
+
+    private function resolveMimeDriver(string $setting): string
+    {
+        if ($setting !== 'auto') {
+            return $this->has($setting) ? $setting : 'magic';
+        }
+        return $this->has('fileinfo') ? 'fileinfo' : 'magic';
+    }
+
+    private function fallbackFor(string $extension): string
+    {
+        return match ($extension) {
+            'mbstring' => 'Utf8 (regex-based)',
+            'bcmath' => 'Decimal (pure PHP long arithmetic)',
+            'openssl' => 'sodium (if available)',
+            'sodium' => 'openssl EVP',
+            'zip' => 'ZipWriterPure (Store + Deflate)',
+            'zlib' => 'Store (no compression)',
+            'curl' => 'Stream HTTP transport',
+            'gd', 'imagick' => 'no processing (metadata only)',
+            'intl' => 'Jalali, PersianNumber, PluralRules (self-written)',
+            'fileinfo' => 'MagicBytesDetector (120 signatures)',
+            'exif' => 'JPEG APP1 parser (self-written)',
+            'apcu' => 'file/array cache',
+            'dom', 'xmlwriter' => 'Simple HTML/Text converter',
+            'pcntl' => 'polling (no signals)',
+            'posix' => 'getmypid(), getmyuid()',
+            'opcache' => 'no-op',
+            'sockets' => 'stream_socket_server',
+            'redis', 'memcached' => 'array/file cache',
+            default => 'none',
+        };
     }
 }

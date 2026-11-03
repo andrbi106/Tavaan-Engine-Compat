@@ -5,73 +5,31 @@ declare(strict_types=1);
 namespace Tavaan\Engine\Compat\Contracts;
 
 /**
- * قرارداد Utf8.
+ * قرارداد کلاس Utf8 — کار با رشته‌های UTF-8.
  *
  * @see \Tavaan\Engine\Compat\Utf8
  * @api 1.0
  */
 interface Utf8Interface
 {
-    /**
-     * متد length.
-     *
-     * @return mixed
-     */
-    public function length(/* ... */): mixed;
+    public static function length(string $s): int;
+
+    public static function substr(string $s, int $start, ?int $length = null): string;
 
     /**
-     * متد substr.
-     *
-     * @return mixed
+     * @return list<string>
      */
-    public function substr(/* ... */): mixed;
+    public static function split(string $s): array;
 
-    /**
-     * متد split.
-     *
-     * @return mixed
-     */
-    public function split(/* ... */): mixed;
+    public static function lower(string $s): string;
 
-    /**
-     * متد lower.
-     *
-     * @return mixed
-     */
-    public function lower(/* ... */): mixed;
+    public static function upper(string $s): string;
 
-    /**
-     * متد upper.
-     *
-     * @return mixed
-     */
-    public function upper(/* ... */): mixed;
+    public static function isValid(string $s): bool;
 
-    /**
-     * متد isValid.
-     *
-     * @return mixed
-     */
-    public function isValid(/* ... */): mixed;
+    public static function normalize(string $s, string $form = 'NFC'): string;
 
-    /**
-     * متد normalize.
-     *
-     * @return mixed
-     */
-    public function normalize(/* ... */): mixed;
+    public static function pad(string $s, int $length, string $pad = ' '): string;
 
-    /**
-     * متد pad.
-     *
-     * @return mixed
-     */
-    public function pad(/* ... */): mixed;
-
-    /**
-     * متد ucfirst.
-     *
-     * @return mixed
-     */
-    public function ucfirst(/* ... */): mixed;
+    public static function ucfirst(string $s): string;
 }

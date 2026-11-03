@@ -5,52 +5,55 @@ declare(strict_types=1);
 namespace Tavaan\Engine\Compat\Contracts;
 
 /**
- * قرارداد Compat.
+ * قرارداد موتور Compat — سازگاری و Polyfill.
  *
  * @see \Tavaan\Engine\Compat\Compat
  * @api 1.0
+ * @see docs/03-engines/compat.md (DOC-083E)
  */
 interface CompatInterface
 {
     /**
-     * متد has.
+     * بررسی وجود یک افزونهٔ PHP.
      *
-     * @return mixed
+     * @param string $extension نام افزونه (e.g. 'mbstring', 'gd', 'zip')
+     * @return bool true اگر افزونه بارگذاری شده باشد
      */
-    public function has(/* ... */): mixed;
+    public function has(string $extension): bool;
 
     /**
-     * متد hasAny.
+     * بررسی وجود حداقل یکی از افزونه‌های داده‌شده.
      *
-     * @return mixed
+     * @param list<string> $extensions
      */
-    public function hasAny(/* ... */): mixed;
+    public function hasAny(array $extensions): bool;
 
     /**
-     * متد require.
+     * درخواست اجباری یک افزونه برای قابلیت مشخص.
      *
-     * @return mixed
+     * @param string $extension نام افزونه
+     * @param string $capability نام قابلیت (e.g. 'image.resize')
+     * @throws \Tavaan\Engine\Compat\EngineCapabilityException اگر افزونه موجود نباشد
      */
-    public function require(/* ... */): mixed;
+    public function require(string $extension, string $capability): void;
 
     /**
-     * متد report.
+     * گزارش کامل وضعیت همهٔ افزونه‌های زیربنایی.
      *
-     * @return mixed
+     * @return array<string, array{required: bool, loaded: bool, fallback: string}>
      */
-    public function report(/* ... */): mixed;
+    public function report(): array;
 
     /**
-     * متد driver.
+     * تشخیص درایور فعال برای یک قابلیت.
      *
-     * @return mixed
+     * @param string $capability 'image'|'zip'|'http'|'math'|'unicode'|'mime'
+     * @return string نام درایور فعال (e.g. 'imagick', 'gd', 'none')
      */
-    public function driver(/* ... */): mixed;
+    public function driver(string $capability): string;
 
     /**
-     * متد version.
-     *
-     * @return mixed
+     * نسخهٔ PHP جاری.
      */
-    public function version(/* ... */): mixed;
+    public function version(): string;
 }

@@ -12,38 +12,15 @@ namespace Tavaan\Engine\Compat\Contracts;
  */
 interface ZipWriterPureInterface
 {
-    /**
-     * متد addFromString.
-     *
-     * @return mixed
-     */
-    public function addFromString(/* ... */): mixed;
+    public function addFromString(string $name, string $data, int $level = 6): void;
 
-    /**
-     * متد addFile.
-     *
-     * @return mixed
-     */
-    public function addFile(/* ... */): mixed;
+    public function addFile(string $path, ?string $name = null): void;
 
-    /**
-     * متد addDirectory.
-     *
-     * @return mixed
-     */
-    public function addDirectory(/* ... */): mixed;
+    public function addDirectory(string $name): void;
 
-    /**
-     * متد output.
-     *
-     * @return mixed
-     */
-    public function output(/* ... */): mixed;
+    public function output(): string;
 
-    /**
-     * متد saveTo.
-     *
-     * @return mixed
-     */
-    public function saveTo(/* ... */): mixed;
+    public function saveTo(string $path): void;
+
+    public function reset(): void;
 }

@@ -12,24 +12,12 @@ namespace Tavaan\Engine\Compat\Contracts;
  */
 interface MagicBytesDetectorInterface
 {
-    /**
-     * متد detect.
-     *
-     * @return mixed
-     */
-    public function detect(/* ... */): mixed;
+    public static function detect(string $head, ?string $hintName = null): ?string;
+
+    public static function detectFromFile(string $path): ?string;
 
     /**
-     * متد detectFromFile.
-     *
-     * @return mixed
+     * @param resource $stream
      */
-    public function detectFromFile(/* ... */): mixed;
-
-    /**
-     * متد detectFromStream.
-     *
-     * @return mixed
-     */
-    public function detectFromStream(/* ... */): mixed;
+    public static function detectFromStream($stream): ?string;
 }
