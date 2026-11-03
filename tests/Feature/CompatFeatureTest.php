@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tavaan\Engine\Compat\Tests\Feature;
 
-use PHPUnit\Framework\TestCase;
+use Tavaan\Testing\TestCase;
 use Tavaan\Engine\Compat\Compat;
 use Tavaan\Engine\Compat\CompatServiceProvider;
 use Tavaan\Engine\Compat\Contracts\CompatInterface;
