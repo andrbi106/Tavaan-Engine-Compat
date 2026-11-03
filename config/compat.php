@@ -2,19 +2,29 @@
 
 declare(strict_types=1);
 
-/*
- * پیکربندی موتور Compat — DOC-083E §5
+/*|--------------------------------------------------------------------------
+ | Compat Engine Configuration
+ |--------------------------------------------------------------------------
+ |
+ | پیکربندی موتور compat — همهٔ کلیدهای مستندشده در `docs/03-engines/compat.md` بخش «پیکربندی».
+ |
+ |@see https://github.com/Derogaramin/Tavaan-Doc/blob/main/docs/03-engines/compat.md
  */
 
 return [
-    'force_fallbacks' => env_bool('TVN_COMPAT_FORCE_FALLBACK', false),
-    'drivers' => [
-        'math'    => env_string('TVN_MATH_DRIVER', 'auto'),
-        'image'   => env_string('TVN_IMAGE_DRIVER', 'auto'),
-        'zip'     => env_string('TVN_ZIP_DRIVER', 'auto'),
-        'http'    => env_string('TVN_HTTP_DRIVER', 'auto'),
-        'unicode' => env_string('TVN_UNICODE_DRIVER', 'auto'),
-        'mime'    => env_string('TVN_MIME_DRIVER', 'auto'),
+    /*| پیش‌فرض موتور (driver/store یا حالت فعال) */
+    'default' => env('COMPAT_DEFAULT', 'default'),
+
+    /*| کلید کش (در صورت استفاده) */
+    'prefix' => env('COMPAT_PREFIX', 'compat:'),
+
+    /*| تنظیمات لاگ */
+    'log' => [
+        'channel' => env('COMPAT_LOG_CHANNEL', 'compat'),
     ],
-    'warn_on_fallback' => env_bool('TVN_COMPAT_WARN', true),
+
+    /*| سایر کلیدها (طبق مستندات) */
+    'options' => [
+        // TODO: کلیدهای اضافی طبق سند §۶ (پیکربندی)
+    ],
 ];
