@@ -2,6 +2,8 @@
 
 > **سازگاری و Polyfill** — موتور Compat در فریمورک تَوان
 
+این موتور از کلاس پایهٔ `Engine` (در [Tavaan-Engine-Core](https://github.com/andrbi106/Tavaan-Engine-Core)) ارث می‌برد.
+
 ## مشخصات
 
 | فیلد | مقدار |
@@ -11,28 +13,38 @@
 | عنوان فارسی | سازگاری و Polyfill |
 | نسخه | `0.1.0` |
 | namespace | `Tavaan\Engine\Compat` |
-| نوع | `engine` |
+| کلاس موتور | `Tavaan\Engine\Compat\CompatEngine` |
+| Facade |  |
 
-## قراردادها (Contracts)
+## کلاس موتور
 
-این موتور قراردادهای زیر را ارائه می‌دهد:
+```php
+namespace Tavaan\Engine\Compat;
 
-- `Tavaan\Engine\Compat\Contracts\CompatInterface`
-- `Tavaan\Engine\Compat\Contracts\MagicBytesDetectorInterface`
-- `Tavaan\Engine\Compat\Contracts\Utf8Interface`
-- `Tavaan\Engine\Compat\Contracts\ZipWriterPureInterface`
+use Tavaan\EngineCore\Engine as BaseEngine;
+use Tavaan\EngineCore\Contracts\EngineManifestInterface;
 
-## کلاس‌های اصلی
+final class CompatEngine extends BaseEngine
+{
+    public function __construct(EngineManifestInterface $manifest)
+    {
+        parent::__construct($manifest);
+    }
 
-- `src/Compat.php`
-- `src/CompatServiceProvider.php`
-- `src/Console/DoctorCommand.php`
-- `src/Decimal.php`
-- `src/EngineCapabilityException.php`
-- `src/MagicBytesDetector.php`
-- `src/RoundingMode.php`
-- `src/Utf8.php`
-- `src/ZipWriterPure.php`
+    public function register(ContainerInterface $container): void
+    {
+        parent::register($container);
+        // bindingهای اختصاصی موتور
+    }
+
+    public function boot(): void
+    {
+        parent::boot();
+    }
+}
+```
+
+**فایل:** `src/CompatEngine.php`
 
 ## Service Providerها
 
@@ -42,28 +54,19 @@
 
 - `doctor`
 
-## پیکربندی
+## سه درگاه ارتباط با سایر موتورها
 
-- فایل پیکربندی: `config/compat.php`
-- کلید: `compat`
+| درگاه | الگو | متدهای convenience |
+|---|---|---|
+| Container | pull-based DI | `make()`, `bound()` |
+| Events | pub/sub | `dispatch()`, `listen()` |
+| EngineBus | point-to-point RPC | `call()`, `offer()` |
 
 ## نصب
 
 ```bash
 git clone https://github.com/andrbi106/Tavaan-Engine-Compat.git
 ```
-
-این موتور بخشی از فریمورک تَوان است و معمولاً به‌صورت مستقیم نصب نمی‌شود،
-بلکه توسط [Tavaan-Core](https://github.com/andrbi106/Tavaan-Core) مدیریت می‌شود.
-
-## روابط با سایر مخازن
-
-| مخزن | نقش |
-|---|---|
-| **`andrbi106/Tavaan-Engine-Compat`** (این مخزن) | موتور Compat |
-| `andrbi106/Tavaan-Engine-Core` | ساختار پایه + درگاه ارتباط موتورها |
-| `andrbi106/Tavaan-Core` | اسکلت اپلیکیشن + همهٔ موتورها |
-| `Derogaramin/Tavaan-Framework` | فریمورک مادر (monorepo) |
 
 ## مجوز
 

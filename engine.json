@@ -25,5 +25,6 @@
   "commands": [
     "doctor"
   ],
-  "docs": "docs/03-engines/compat.md"
+  "docs": "docs/03-engines/compat.md",
+  "class": "Tavaan\\Engine\\Compat\\CompatEngine"
 }
